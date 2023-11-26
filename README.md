@@ -1,1 +1,1 @@
-# sorted-linked-list
+# sorted-linked-list ![](https://github.com/vaclavRechtberger/sorted-linked-list/workflows/tests/badge.svg)
