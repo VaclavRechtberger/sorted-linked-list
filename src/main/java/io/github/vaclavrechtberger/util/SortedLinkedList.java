@@ -1,12 +1,7 @@
 package io.github.vaclavrechtberger.util;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 
 /**
@@ -26,7 +21,7 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     public static final String WRONG_POSITION_MESSAGE_TEMPLATE = "Cannot add specified %s at %s position since it would break ordering.";
 
     public static final String WRONG_REPLACEMENT_MESSAGE = "Cannot replace element at specified index by specified element since it would break ordering.";
-    private final LinkedList<E> delegatedList = new LinkedList<>(); // if List then getFirst and getLast cause "java: cannot find symbol"
+    private final List<E> delegatedList = new LinkedList<>();
 
     private final Comparator<? super E> comparator;
 
@@ -109,7 +104,7 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     @Override
     public boolean add(E e) {
         if (isEmpty()) {
-            delegatedList.add(e);
+            return delegatedList.add(e);
         }
         Iterator<E> iterator = this.iterator();
         OptionalInt index = IntStream.range(0, this.size())
@@ -118,11 +113,10 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
 
         if (index.isPresent()) {
             delegatedList.add(index.getAsInt(), e);
+            return true;
         } else { // list is empty or all the elements are less or equal
-            delegatedList.add(e);
+            return delegatedList.add(e);
         }
-
-        return true;
     }
 
     @Override
@@ -170,7 +164,7 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
         if (c.isEmpty()) {
             return true;
         }
-        LinkedList<E> tmpList = new LinkedList<>(c);
+        List<E> tmpList = new ArrayList<>(c);
         tmpList.sort(this.comparator);
         if (checkForInsert(index, tmpList.getFirst(), tmpList.getLast())) {
             return delegatedList.addAll(index, tmpList);
@@ -273,6 +267,34 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
         return delegatedList.subList(fromIndex, toIndex);
     }
 
+    @Override
+    public String toString() {
+        return delegatedList.toString();
+    }
+
+
+    /**
+     * Returns this list in reverse order. For some incompatibility issues given by ordering the returned list is not non-modifiable.
+     * Note: returned list is still modifiable via this list. This issue will be resolved further.
+     */
+    @Override
+    public List<E> reversed() {
+        return Collections.unmodifiableList(delegatedList.reversed());
+    }
+
+    /**
+     * Unsupported operation since ordering is already given and reordering could/would break this order. Throws {@link UnsupportedOperationException}.
+     * Note: There are other alternatives on the table how to implement this method.
+     * - set selected comparator, reorder elements and use it from now onwards
+     * - sort using selected comparator only subsequences of equivalent elements in the context of actual comparator (e.i. use it as second level sorting)
+     * @param comparator comparator for sorting
+     * @throws UnsupportedOperationException since this operation goes against intent of this class
+     */
+    @Override
+    public void sort(Comparator<? super E> comparator) {
+        throw new UnsupportedOperationException("This class is sorted by nature and cannot be reordered.");
+    }
+
     private void checkBounds(int index) {
         if (!isInBounds(index))
             throw new IndexOutOfBoundsException(outOfBoundsMessage(index));
@@ -314,7 +336,7 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
      * @return {@code true} if eleemnt can be replaced without breaking the order.
      */
     private boolean checkForSet(int index, E element) {
-        return (index == 0 || isLessOrEqual(get(index - 1), element)) && (index == (size() - 1)  ||  isLessOrEqual(element, get(index)));
+        return (index == 0 || isLessOrEqual(get(index - 1), element)) && (index == (size() - 1)  ||  isLessOrEqual(element, get(index + 1)));
     }
 
     /**
