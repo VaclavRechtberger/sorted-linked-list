@@ -5,6 +5,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,13 +29,19 @@ public class SortedLinkedListTest {
         assertThrows(UnsupportedOperationException.class, () -> new SortedLinkedList().sort(null));
     }
 
-    @Test
-    public void addTest() {
-        SortedLinkedList<String> sortedLinkedList = new SortedLinkedList<>();
-        sortedLinkedList.add("a");
-        sortedLinkedList.add("c");
-        sortedLinkedList.add("b");
-        assertThat(sortedLinkedList, contains("a", "b", "c"));
+    @ParameterizedTest
+    @MethodSource("addParametersSource")
+    public <E extends Comparable<E>> void addTest(E [] elementsToAdd, E [] expectedResult) {
+        SortedLinkedList<E> sortedLinkedList = new SortedLinkedList<>();
+        Arrays.stream(elementsToAdd).forEach(sortedLinkedList::add);
+        assertThat(sortedLinkedList, contains(expectedResult));
+    }
+    public static Stream<Arguments> addParametersSource() {
+        return Stream.of(
+                Arguments.of(new String [] {"a", "c", "b"}, new String [] {"a", "b", "c"}),
+                Arguments.of(new Integer [] {2, 1, 0}, new Integer [] {0, 1, 2}),
+                Arguments.of(new Integer [] {6, -5, -1, null}, new Integer [] {null, -5, -1, 6})
+        );
     }
 
     @Test
@@ -95,13 +103,13 @@ public class SortedLinkedListTest {
     }
 
     @ParameterizedTest
-    @MethodSource("setWringParametersSource")
+    @MethodSource("setWrongParametersSource")
     public void setElementAtWrongPositionTest(List<String> initList, int index, String element) {
         SortedLinkedList<String> sortedLinkedList = new SortedLinkedList<>(initList, Utils.createCaseInsensitiveNaturalOrderNullLastStringComparator());
         assertThrows(IllegalArgumentException.class, () -> sortedLinkedList.set(index, element));
     }
 
-    public static Stream<Arguments> setWringParametersSource() {
+    public static Stream<Arguments> setWrongParametersSource() {
         return Stream.of(
                 Arguments.of(List.of("a", "b", "d"), 1, "e"),
                 Arguments.of(List.of("a", "B", "c"), 0, "c"),
