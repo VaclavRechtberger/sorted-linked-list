@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
  * For instance added values are not appended to the end of this list but placed at appropriate position @see {@link io.github.vaclavrechtberger.util.SortedLinkedList#add(Comparable)}.
  * For more differences see whole documentation of this class and its methods.
  * This class is not thread-safe.
- * Note: to make this class thread-safe we must place code in methods like add, addFirst, addLast, remove and removeAll in synchronized block with same lock;
+ * Note: To make this class thread-safe, we must place code in methods such as add, addFirst, addLast, remove, and removeAll within a synchronized block, utilizing the same lock, or implement some alternative upgrade for concurrent access.
  *
  * @author Vaclav Rechtberger
  * @author vaclav.rechtberger@gmail.com
@@ -26,37 +26,39 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     private final Comparator<? super E> comparator;
 
     /**
-     * Constructs an empty sorted list with natural ordering and null values first.
+     * Constructs an empty sorted list with natural ordering, placing null values at the beginning.
      */
     public SortedLinkedList() {
         this(Utils.createNaturalOrderNullFirstComparator());
     }
 
     /**
-     * Constructs a sorted list with natural ordering and null values first containing the elements of the specified.
-     * @param collection
+     * Constructs a sorted list with natural ordering, placing null values at the beginning, and containing the elements of the specified collection.
+     * @param collection the specified collection
      */
     public SortedLinkedList(Collection<? extends E> collection) {
         this(collection, Utils.createNaturalOrderNullFirstComparator());
     }
 
     /**
-     * Constructs an empty sorted list with ordering given by specified comparator.
-     * Keep in mind that specified comparator affects behaviour of this class
-     * (e.g. if {@link java.util.Comparator#compare(Object, Object)} throws some {@link java.lang,Throwable} then {@link io.github.vaclavrechtberger.util.SortedLinkedList#add(Comparable)}
-     * will throw this since the comparator is used in this method).
-     * The ability of comparator to handle null values will affect behaviour of this list, namely adding of new values.
+     * Constructs an empty sorted list with the ordering given by the specified comparator.
+     * Keep in mind that the specified comparator affects the behavior of this class
+     * (e.g., if {@link java.util.Comparator#compare(Object, Object)} throws some {@link java.lang.Throwable},
+     * then {@link io.github.vaclavrechtberger.util.SortedLinkedList#add(Comparable)} will throw this exception since the comparator is used in this method).
+     * The ability of the comparator to handle null values will affect the behavior of this list, particularly in the adding of new values.
      * See {@link io.github.vaclavrechtberger.util.Utils}.
+     * @param comparator the comparator to determine the ordering of elements
      */
     public SortedLinkedList(Comparator<E> comparator) {
         this.comparator = comparator;
     }
 
     /**
-     * Constructs a sorted list with natural ordering and null values first containing the elements of the specified collection.
+     * Constructs a sorted list with natural ordering, placing null values at the beginning, and containing the elements of the specified collection.
      * See {@link io.github.vaclavrechtberger.util.SortedLinkedList#SortedLinkedList(Comparator)}
-     * @param collection
-     * @param comparator
+     *
+     * @param collection the specified collection
+     * @param comparator the comparator to determine the ordering of elements
      */
     public SortedLinkedList(Collection<? extends E> collection, Comparator<E> comparator) {
         delegatedList.addAll(collection);
@@ -95,11 +97,12 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Adds the specified element at appropriate position in this list.
-     * If this list already contains one or more equal elements, then it appends the specified element to the end of this sublist of equal elements
-     * (e.i. appends specified element before first larger element or at the end)
-     * @param e element whose presence in this collection is to be ensured
-     * @return true if elements were added
+     * Adds the specified element at the appropriate position in this list.
+     * If this list already contains one or more equal elements, it appends the specified element to the end of this sublist of equal elements
+     * (i.e., appends the specified element before the first larger element or at the end).
+     *
+     * @param e the element whose presence in this collection is to be ensured
+     * @return true if the element was added
      */
     @Override
     public boolean add(E e) {
@@ -130,11 +133,12 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Inserts each element of the specified collection at appropriate position of this list in order that they are returned by the specified collection's iterator.
-     * Note: This implementation is aligned with the idea of {@link io.github.vaclavrechtberger.util.SortedLinkedList#add(Comparable)}
-     * but goes against idea of {@link io.github.vaclavrechtberger.util.SortedLinkedList#addAll(int, Collection)}
-     * since this method could be understood as shortcut to this method where {@code index = this.size()} (e.i. appends all the elements at the end of this list)
-     * @param c collection containing elements to be added to this collection
+     * Inserts each element of the specified collection at the appropriate position in this list in the order they are returned by the specified collection's iterator.
+     * Note: This implementation aligns with the idea of {@link io.github.vaclavrechtberger.util.SortedLinkedList#add(Comparable)}
+     * but contradicts the idea of {@link io.github.vaclavrechtberger.util.SortedLinkedList#addAll(int, Collection)}
+     * since that method could be understood as a shortcut to this method where {@code index = this.size()} (i.e., appends all the elements at the end of this list).
+     *
+     * @param c the collection containing elements to be added to this collection
      * @return {@code true} if this list changed as a result of the call
      * @throws NullPointerException if the specified collection contains one or more null elements and this list does not permit null elements, or if the specified collection is null
      */
@@ -145,13 +149,13 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Adds the specified elements at specified position in this list.
-     * Following criteria must hold otherwise {@link java.lang.IllegalArgumentException} will be thrown:
-     * - c is empty or {@code null}
-     * - {@code index == this.size()} or element at position of the specified index must be greater or equal to the largest element of the specified collection
-     * - {@code index == 0} or element at position of the specified index - 1 must be less or equal to the smallest element of the specified collection
-     * @param index index at which to insert the specified collection (after sort)
-     * @param c collection containing elements to be inserted to this list
+     * Inserts the specified elements at the specified position in this list in the appropriate order.
+     * The following criteria must hold; otherwise, a {@link java.lang.IllegalArgumentException} will be thrown:
+     * - {@code index == this.size()} or the element at the position of the specified index must be greater or equal to the largest element of the specified collection
+     * - {@code index == 0} or the element at the position of the specified index - 1 must be less or equal to the smallest element of the specified collection
+     *
+     * @param index the index at which to insert the specified collection (after sorting)
+     * @param c the collection containing elements to be inserted into this list
      * @return {@code true} if this list changed as a result of the call
      * @throws IllegalArgumentException if some property of the specified element prevents it from being added to this list
      * @throws NullPointerException if the specified collection contains one or more null elements and this list does not permit null elements, or if the specified collection is null
@@ -194,14 +198,15 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
 
     /**
      * Replaces the element at the specified position in this list with the
-     * specified element if this action do not break order.
-     * @param index index of the element to replace
-     * @param element element to be stored at the specified position
+     * specified element if this action does not break the order.
+     *
+     * @param index the index of the element to replace
+     * @param element the element to be stored at the specified position
      * @return the element previously at the specified position
      * @throws NullPointerException if the specified element is null and
      *         this list does not permit null elements
      * @throws IllegalArgumentException if some property of the specified
-     *         element prevents it from being added to this list (e.g. order given by comparator)
+     *         element prevents it from being added to this list (e.g., order given by comparator)
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
@@ -215,15 +220,16 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Adds the specified element at specified position in this list.
-     * Following criteria must hold otherwise {@link java.lang.IllegalArgumentException} will be thrown:
-     * - {@code index == 0} or element at position of the specified index - 1 must be less or equal to the specified element
-     * - {@code index == this.size()} or element at position of the specified index must be greater or equal to the specified element
-     * @param index index at which to insert the specified collection (after sort)
-     * @param element to be inserted at index
+     * Inserts the specified element at the specified position in this list.
+     * The following criteria must hold; otherwise, a {@link java.lang.IllegalArgumentException} will be thrown:
+     * - {@code index == 0} or the element at the position of the specified index - 1 must be less or equal to the specified element
+     * - {@code index == this.size()} or the element at the position of the specified index must be greater or equal to the specified element
+     *
+     * @param index the index at which to insert the specified element (after sorting)
+     * @param element the element to be inserted at the specified index
      * @return {@code true} if this list changed as a result of the call
      * @throws IllegalArgumentException if some property of the specified element prevents it from being added to this list
-     * @throws NullPointerException if the specified collection contains one or more null elements and this list does not permit null elements, or if the specified collection is null
+     * @throws NullPointerException if the specified element is null and this list does not permit null elements
      * @throws IndexOutOfBoundsException if the index is out of range
      *         ({@code index < 0 || index >= size()})
      */
@@ -274,8 +280,8 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
 
 
     /**
-     * Returns this list in reverse order. For some incompatibility issues given by ordering the returned list is not non-modifiable.
-     * Note: returned list is still modifiable via this list. This issue will be resolved further.
+     * Returns this list in reverse order. Due to incompatibility issues arising from ordering, the returned list is non-modifiable.
+     * Note: The returned list can still be modified through this list. This issue will be resolved in future updates.
      */
     @Override
     public List<E> reversed() {
@@ -283,12 +289,13 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Unsupported operation since ordering is already given and reordering could/would break this order. Throws {@link UnsupportedOperationException}.
-     * Note: There are other alternatives on the table how to implement this method.
-     * - set selected comparator, reorder elements and use it from now onwards
-     * - sort using selected comparator only subsequences of equivalent elements in the context of actual comparator (e.i. use it as second level sorting)
-     * @param comparator comparator for sorting
-     * @throws UnsupportedOperationException since this operation goes against intent of this class
+     * Unsupported operation since ordering is already given, and reordering could/would break this order. Throws {@link UnsupportedOperationException}.
+     * Note: There are other alternatives on the table for implementing this method.
+     * - Set the selected comparator, reorder elements, and use it from now onwards.
+     * - Sort only subsequences of equivalent elements using the selected comparator in the context of the actual comparator (i.e., use it as a second-level sorting).
+     *
+     * @param comparator the comparator for sorting
+     * @throws UnsupportedOperationException since this operation goes against the intent of this class
      */
     @Override
     public void sort(Comparator<? super E> comparator) {
@@ -309,40 +316,44 @@ public class SortedLinkedList<E extends Comparable<E>> implements List<E>{
     }
 
     /**
-     * Checks whether element can be inserted at position given by selected index.
-     * @param index
-     * @param element
-     * @return {@code true} if element can be inserted at position
+     * Checks whether the element can be inserted at the position given by the selected index.
+     *
+     * @param index the index at which to check insertion
+     * @param element the element to be inserted
+     * @return {@code true} if the element can be inserted at the position
      */
     private boolean checkForInsert(int index, E element) {
         return checkForInsert(index, element, element);
     }
 
     /**
-     * Checks whether sequence represented by its min and max element can be inserted at position given by selected index.
-     * @param index
-     * @param min value to be checked
-     * @param max value to be checked
-     * @return {@code true} if sequence represented by min and max values can be inserted at position
+     * Checks whether the sequence represented by its min and max elements can be inserted at the position given by the selected index.
+     *
+     * @param index the index at which to check insertion
+     * @param min the minimum value to be checked
+     * @param max the maximum value to be checked
+     * @return {@code true} if the sequence represented by min and max values can be inserted at the position
      */
     private boolean checkForInsert(int index, E min, E max) {
         return (index == 0 || isLessOrEqual(get(index - 1), min)) && (index == size()  ||  isLessOrEqual(max, get(index)));
     }
 
     /**
-     * Checks whether element at selected index can be replaced by selected element without breaking the order.
-     * @param index of replaced element
-     * @param element for replacement
-     * @return {@code true} if eleemnt can be replaced without breaking the order.
+     * Checks whether the element at the selected index can be replaced by the selected element without breaking the order.
+     *
+     * @param index the index of the element to be replaced
+     * @param element the element for replacement
+     * @return {@code true} if the element can be replaced without breaking the order
      */
     private boolean checkForSet(int index, E element) {
         return (index == 0 || isLessOrEqual(get(index - 1), element)) && (index == (size() - 1)  ||  isLessOrEqual(element, get(index + 1)));
     }
 
     /**
-     * Checks whether e1 is less or equal then e2.
-     * @param e1
-     * @param e2
+     * Checks whether e1 is less than or equal to e2.
+     *
+     * @param e1 the first element
+     * @param e2 the second element
      * @return {@code true} if e1 <= e2
      */
     private boolean isLessOrEqual(E e1, E e2) {
